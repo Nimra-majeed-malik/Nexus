@@ -3,6 +3,7 @@ import { FileText, Upload, Download, Trash2, Share2 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { DocumentChamber } from '../../components/documents/DocumentChamber';
 
 const documents = [
   {
@@ -171,6 +172,9 @@ export const DocumentsPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Document Chamber for contracts and deals */}
+      <DocumentChamber />
     </div>
   );
 };

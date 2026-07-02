@@ -14,7 +14,14 @@ export const MessagesPage: React.FC = () => {
   const conversations = getConversationsForUser(user.id);
   
   return (
-    <div className="h-[calc(100vh-8rem)] bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+        <p className="text-gray-600">Connect and collaborate with other users</p>
+      </div>
+
+      {/* Messages Section */}
+      <div className="h-[calc(100vh-12rem)] bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {conversations.length > 0 ? (
         <ChatUserList conversations={conversations} />
       ) : (
@@ -28,6 +35,7 @@ export const MessagesPage: React.FC = () => {
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 };

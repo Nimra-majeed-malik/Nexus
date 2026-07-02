@@ -21,6 +21,7 @@ import { InvestorProfile } from './pages/profile/InvestorProfile';
 import { InvestorsPage } from './pages/investors/InvestorsPage';
 import { EntrepreneursPage } from './pages/entrepreneurs/EntrepreneursPage';
 import { MessagesPage } from './pages/messages/MessagesPage';
+import { VideoCallPage } from './pages/videocall/VideoCallPage';
 import { NotificationsPage } from './pages/notifications/NotificationsPage';
 import { DocumentsPage } from './pages/documents/DocumentsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
@@ -62,6 +63,10 @@ function App() {
           
           <Route path="/messages" element={<DashboardLayout />}>
             <Route index element={<MessagesPage />} />
+          </Route>
+          
+          <Route path="/videocall" element={<DashboardLayout />}>
+            <Route index element={<VideoCallPage />} />
           </Route>
           
           <Route path="/notifications" element={<DashboardLayout />}>
