@@ -14,6 +14,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { GuidedTour } from '../../components/ui/GuidedTour';
 
 interface MeetingEvent {
   id: string;
@@ -34,6 +35,7 @@ export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
   const [recommendedInvestors] = useState(investors.slice(0, 3));
+  const [runTour, setRunTour] = useState(false);
   const [events, setEvents] = useState<MeetingEvent[]>([
     { id: '1', title: 'Pitch to Michael - VC Fund', date: '2026-07-05', color: '#3B82F6', status: 'confirmed' },
     { id: '2', title: 'Investor Meeting', date: '2026-07-08', color: '#10B981', status: 'confirmed' },
@@ -117,6 +119,44 @@ export const EntrepreneurDashboard: React.FC = () => {
       r.id === id ? { ...r, status: 'declined' } : r
     ));
   };
+
+  const tourSteps = [
+    {
+      target: 'body',
+      content: '👋 Welcome to Nexus! Let me show you around the platform.',
+      placement: 'center' as const,
+    },
+    {
+      target: '.investor-cards-section',
+      content: '🤝 Here are recommended investors who might be interested in your startup.',
+      placement: 'bottom' as const,
+    },
+    {
+      target: '.collaboration-requests-section',
+      content: '📬 Accept or reject collaboration requests from investors.',
+      placement: 'bottom' as const,
+    },
+    {
+      target: '.calendar-section',
+      content: '📅 Schedule and manage your meetings with investors.',
+      placement: 'top' as const,
+    },
+    {
+      target: '.videocall-section',
+      content: '📹 Conduct video calls with investors from here.',
+      placement: 'top' as const,
+    },
+    {
+      target: '.document-section',
+      content: '📄 Upload, sign and manage your pitch decks and contracts.',
+      placement: 'top' as const,
+    },
+    {
+      target: '.quick-links-section',
+      content: '🚀 Quick access to Payments, Messages, and other important features!',
+      placement: 'top' as const,
+    },
+  ];
 
   if (!user) return null;
 
