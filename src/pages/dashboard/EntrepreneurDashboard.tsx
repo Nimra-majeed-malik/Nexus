@@ -14,7 +14,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { GuidedTour } from '../../components/ui/GuidedTour';
+import Joyride from 'react-joyride';
 
 interface MeetingEvent {
   id: string;
@@ -120,43 +120,54 @@ export const EntrepreneurDashboard: React.FC = () => {
     ));
   };
 
-  const tourSteps = [
-    {
-      target: 'body',
-      content: '👋 Welcome to Nexus! Let me show you around the platform.',
-      placement: 'center' as const,
-    },
-    {
-      target: '.investor-cards-section',
-      content: '🤝 Here are recommended investors who might be interested in your startup.',
-      placement: 'bottom' as const,
-    },
-    {
-      target: '.collaboration-requests-section',
-      content: '📬 Accept or reject collaboration requests from investors.',
-      placement: 'bottom' as const,
-    },
-    {
-      target: '.calendar-section',
-      content: '📅 Schedule and manage your meetings with investors.',
-      placement: 'top' as const,
-    },
-    {
-      target: '.videocall-section',
-      content: '📹 Conduct video calls with investors from here.',
-      placement: 'top' as const,
-    },
-    {
-      target: '.document-section',
-      content: '📄 Upload, sign and manage your pitch decks and contracts.',
-      placement: 'top' as const,
-    },
-    {
-      target: '.quick-links-section',
-      content: '🚀 Quick access to Payments, Messages, and other important features!',
-      placement: 'top' as const,
-    },
-  ];
+  // Guided walkthrough steps — covers all Milestone 1-6 modules
+ const tourSteps = [
+  {
+    target: 'body',
+    content: '👋 Welcome to Nexus! Let me show you around your dashboard.',
+    placement: 'center' as const,
+  },
+  {
+    target: '.meeting-requests-section',
+    content: '📨 Review meeting requests from investors here.',
+    placement: 'top' as const,
+  },
+  {
+    target: '.calendar-section',
+    content: '📅 Schedule and manage your confirmed meetings.',
+    placement: 'top' as const,
+  },
+  {
+    target: '.collaboration-requests-section',
+    content: '🤝 Accept or reject collaboration requests from investors.',
+    placement: 'top' as const,
+  },
+  {
+    target: '.investor-cards-section',
+    content: '⭐ Recommended investors for your startup.',
+    placement: 'left' as const,
+  },
+  {
+    target: 'a[href="/videocall"]',
+    content: '📹 Start video calls from the sidebar.',
+    placement: 'right' as const,
+  },
+  {
+    target: 'a[href="/documents"]',
+    content: '📄 Manage your deal documents here.',
+    placement: 'right' as const,
+  },
+  {
+    target: 'a[href="/payments"]',
+    content: '💳 Manage your wallet and transactions.',
+    placement: 'right' as const,
+  },
+];
+ const handleJoyrideCallback = (data: any) => {
+  if (data.status === 'finished' || data.status === 'skipped') {
+    setRunTour(false);
+  }
+};
 
   if (!user) return null;
 
@@ -165,14 +176,35 @@ export const EntrepreneurDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <Joyride
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        showSkipButton
+        showProgress
+        scrollToFirstStep
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#4F46E5',
+            zIndex: 10000,
+          },
+        }}
+      />
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome, {user.name}</h1>
           <p className="text-gray-600">Here's what's happening with your startup today</p>
         </div>
-        <Link to="/investors">
-          <Button leftIcon={<PlusCircle size={18} />}>Find Investors</Button>
-        </Link>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => setRunTour(true)}>
+            🧭 Take a Tour
+          </Button>
+          <Link to="/investors">
+            <Button leftIcon={<PlusCircle size={18} />}>Find Investors</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -237,7 +269,7 @@ export const EntrepreneurDashboard: React.FC = () => {
       </div>
 
       {/* Meeting Requests */}
-      <Card>
+      <Card className="meeting-requests-section">
         <CardHeader>
           <h2 className="text-lg font-medium text-gray-900">📨 Meeting Requests</h2>
         </CardHeader>
@@ -276,7 +308,7 @@ export const EntrepreneurDashboard: React.FC = () => {
       </Card>
 
       {/* Calendar */}
-      <Card>
+      <Card className="calendar-section">
         <CardHeader>
           <h2 className="text-lg font-medium text-gray-900">📅 Meeting Calendar</h2>
           <p className="text-sm text-gray-500">Click a date to add • Click an event to edit/delete</p>
@@ -350,7 +382,7 @@ export const EntrepreneurDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Collaboration requests */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4 collaboration-requests-section">
           <Card>
             <CardHeader className="flex justify-between items-center">
               <h2 className="text-lg font-medium text-gray-900">Collaboration Requests</h2>
@@ -381,7 +413,7 @@ export const EntrepreneurDashboard: React.FC = () => {
         </div>
 
         {/* Recommended investors */}
-        <div className="space-y-4">
+        <div className="space-y-4 investor-cards-section">
           <Card>
             <CardHeader className="flex justify-between items-center">
               <h2 className="text-lg font-medium text-gray-900">Recommended Investors</h2>

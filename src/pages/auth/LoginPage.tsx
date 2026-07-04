@@ -5,7 +5,7 @@ import { UserRole } from '../../types';
 
 type Step = 'login' | 'otp';
 
-export const LoginPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('login');
@@ -24,12 +24,14 @@ export const LoginPage: React.FC = () => {
       await login(email, password, role);
       setStep('otp');
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Invalid email or password. Try with a registered email.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
     if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -40,14 +42,26 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const goToDashboard = () => {
+    if (role === 'entrepreneur') {
+      navigate('/dashboard/entrepreneur');
+    } else {
+      navigate('/dashboard/investor');
+    }
+  };
+
   const handleOtpVerify = () => {
     const code = otp.join('');
-    if (code.length < 6) return setError('Please enter all 6 digits');
-    navigate('/dashboard');
+    if (code.length < 6) {
+      setError('Please enter all 6 digits');
+      return;
+    }
+    setError('');
+    goToDashboard();
   };
 
   const handleSkipOtp = () => {
-    navigate('/dashboard');
+    goToDashboard();
   };
 
   return (
@@ -82,7 +96,13 @@ export const LoginPage: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">I am a...</label>
                 <div className="flex gap-3">
-                  <label className="flex-1 flex items-center gap-2 cursor-pointer p-3 border-2 rounded-xl transition" style={{borderColor: role === 'entrepreneur' ? '#3b82f6' : '#e5e7eb', backgroundColor: role === 'entrepreneur' ? '#f0f7ff' : 'white'}}>
+                  <label
+                    className="flex-1 flex items-center gap-2 cursor-pointer p-3 border-2 rounded-xl transition"
+                    style={{
+                      borderColor: role === 'entrepreneur' ? '#3b82f6' : '#e5e7eb',
+                      backgroundColor: role === 'entrepreneur' ? '#f0f7ff' : 'white'
+                    }}
+                  >
                     <input
                       type="radio"
                       name="role"
@@ -91,9 +111,15 @@ export const LoginPage: React.FC = () => {
                       onChange={(e) => setRole(e.target.value as UserRole)}
                       className="w-4 h-4"
                     />
-                    <span className="text-sm font-medium text-gray-700">Entrepreneur</span>
+                    <span className="text-sm font-medium text-gray-700">🚀 Entrepreneur</span>
                   </label>
-                  <label className="flex-1 flex items-center gap-2 cursor-pointer p-3 border-2 rounded-xl transition" style={{borderColor: role === 'investor' ? '#3b82f6' : '#e5e7eb', backgroundColor: role === 'investor' ? '#f0f7ff' : 'white'}}>
+                  <label
+                    className="flex-1 flex items-center gap-2 cursor-pointer p-3 border-2 rounded-xl transition"
+                    style={{
+                      borderColor: role === 'investor' ? '#3b82f6' : '#e5e7eb',
+                      backgroundColor: role === 'investor' ? '#f0f7ff' : 'white'
+                    }}
+                  >
                     <input
                       type="radio"
                       name="role"
@@ -102,7 +128,7 @@ export const LoginPage: React.FC = () => {
                       onChange={(e) => setRole(e.target.value as UserRole)}
                       className="w-4 h-4"
                     />
-                    <span className="text-sm font-medium text-gray-700">Investor</span>
+                    <span className="text-sm font-medium text-gray-700">💼 Investor</span>
                   </label>
                 </div>
               </div>
@@ -131,7 +157,7 @@ export const LoginPage: React.FC = () => {
                 />
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-end">
                 <Link to="/forgot-password" className="text-sm text-blue-500 hover:underline">
                   Forgot password?
                 </Link>
@@ -140,13 +166,20 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium transition"
+                className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white py-3 rounded-xl font-medium transition"
               >
                 {loading ? 'Signing in...' : 'Continue →'}
               </button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 mt-6">
+            {/* Demo credentials helper */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
+              <p className="font-medium mb-1">Demo credentials:</p>
+             <p>👨‍💼 Investor: michael@vcinnovate.com / any password</p>
+<p>🚀 Entrepreneur: sarah@techwave.io / any password</p>
+            </div>
+
+            <p className="text-center text-sm text-gray-500 mt-4">
               Don't have an account?{' '}
               <Link to="/register" className="text-blue-500 hover:underline font-medium">
                 Sign up
@@ -170,13 +203,13 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-            {/* OTP boxes */}
             <div className="flex gap-2 justify-center mb-6">
               {otp.map((digit, index) => (
                 <input
                   key={index}
                   id={`otp-${index}`}
                   type="text"
+                  inputMode="numeric"
                   maxLength={1}
                   value={digit}
                   onChange={e => handleOtpChange(index, e.target.value)}
@@ -208,3 +241,5 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+
+export default LoginPage;

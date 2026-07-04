@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       // Add user to mock data
-      users.push(newUser);
+      users.push(newUser as any);
       
       setUser(newUser);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
@@ -153,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('User not found');
       }
       
-      const updatedUser = { ...users[userIndex], ...updates };
+  const updatedUser = { ...users[userIndex], ...updates } as any;
       users[userIndex] = updatedUser;
       
       // Update current user if it's the same user

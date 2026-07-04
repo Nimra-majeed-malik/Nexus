@@ -13,7 +13,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import Joyride from 'react-joyride';
+import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
+
 interface MeetingEvent {
   id: string;
   title: string;
@@ -33,6 +34,7 @@ export const InvestorDashboard: React.FC = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [runTour, setRunTour] = useState(false);
   const [events, setEvents] = useState<MeetingEvent[]>([
     { id: '1', title: 'Call with Sarah - TechWave', date: '2026-07-05', color: '#3B82F6', status: 'confirmed' },
     { id: '2', title: 'Deal Review Meeting', date: '2026-07-08', color: '#10B981', status: 'confirmed' },
@@ -67,7 +69,6 @@ export const InvestorDashboard: React.FC = () => {
     );
   };
 
-  // Add new meeting on date click
   const handleDateClick = (arg: any) => {
     const title = prompt('Enter meeting title:');
     if (title) {
@@ -82,7 +83,6 @@ export const InvestorDashboard: React.FC = () => {
     }
   };
 
-  // Click existing event to edit/delete
   const handleEventClick = (arg: any) => {
     const clicked = events.find(e => e.id === arg.event.id);
     if (clicked) {
@@ -92,7 +92,6 @@ export const InvestorDashboard: React.FC = () => {
     }
   };
 
-  // Save edited meeting
   const handleSaveEdit = () => {
     setEvents(events.map(e =>
       e.id === selectedEvent?.id ? { ...e, title: editTitle } : e
@@ -100,13 +99,11 @@ export const InvestorDashboard: React.FC = () => {
     setShowEditModal(false);
   };
 
-  // Delete meeting
   const handleDelete = () => {
     setEvents(events.filter(e => e.id !== selectedEvent?.id));
     setShowEditModal(false);
   };
 
-  // Accept meeting request
   const handleAcceptRequest = (id: string) => {
     const req = meetingRequests.find(r => r.id === id);
     if (req) {
@@ -123,7 +120,6 @@ export const InvestorDashboard: React.FC = () => {
     ));
   };
 
-  // Decline meeting request
   const handleDeclineRequest = (id: string) => {
     setMeetingRequests(meetingRequests.map(r =>
       r.id === id ? { ...r, status: 'declined' } : r
@@ -132,16 +128,83 @@ export const InvestorDashboard: React.FC = () => {
 
   const confirmedMeetings = events.filter(e => e.status === 'confirmed');
 
+  // Guided walkthrough steps — covers all Milestone 1-6 modules
+  const tourSteps: Step[] = [
+    {
+      target: 'body',
+      content: '👋 Welcome to Nexus! Let’s take a quick tour of your investor dashboard.',
+      placement: 'center',
+    },
+    {
+      target: '.meeting-requests-section',
+      content: '📨 Manage meeting requests sent by entrepreneurs here.',
+      placement: 'top',
+    },
+    {
+      target: '.calendar-section',
+      content: '📅 Schedule and track your confirmed meetings on this calendar.',
+      placement: 'top',
+    },
+    {
+      target: '.entrepreneur-cards-section',
+      content: '🚀 Browse featured startups looking for investment, and filter by industry.',
+      placement: 'top',
+    },
+    {
+      target: 'a[href="/videocall"]',
+      content: '📹 Start a video call with an entrepreneur directly from the sidebar.',
+      placement: 'right',
+    },
+    {
+      target: 'a[href="/documents"]',
+      content: '📄 Review, upload, and e-sign deal documents in the Document Chamber.',
+      placement: 'right',
+    },
+    {
+      target: 'a[href="/payments"]',
+      content: '💳 Fund deals, check your wallet balance, and view transaction history here.',
+      placement: 'right',
+    },
+  ];
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setRunTour(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <Joyride
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        showSkipButton
+        showProgress
+        scrollToFirstStep
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#4F46E5',
+            zIndex: 10000,
+          },
+        }}
+      />
+
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Discover Startups</h1>
           <p className="text-gray-600">Find and connect with promising entrepreneurs</p>
         </div>
-        <Link to="/entrepreneurs">
-          <Button leftIcon={<PlusCircle size={18} />}>View All Startups</Button>
-        </Link>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => setRunTour(true)}>
+            🧭 Take a Tour
+          </Button>
+          <Link to="/entrepreneurs">
+            <Button leftIcon={<PlusCircle size={18} />}>View All Startups</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -222,7 +285,7 @@ export const InvestorDashboard: React.FC = () => {
       </div>
 
       {/* Meeting Requests */}
-      <Card>
+      <Card className="meeting-requests-section">
         <CardHeader>
           <h2 className="text-lg font-medium text-gray-900">📨 Meeting Requests</h2>
         </CardHeader>
@@ -265,7 +328,7 @@ export const InvestorDashboard: React.FC = () => {
       </Card>
 
       {/* Calendar */}
-      <Card>
+      <Card className="calendar-section">
         <CardHeader>
           <h2 className="text-lg font-medium text-gray-900">📅 Meeting Calendar</h2>
           <p className="text-sm text-gray-500">Click a date to add • Click an event to edit/delete</p>
@@ -344,7 +407,7 @@ export const InvestorDashboard: React.FC = () => {
       )}
 
       {/* Entrepreneurs Grid */}
-      <Card>
+      <Card className="entrepreneur-cards-section">
         <CardHeader>
           <h2 className="text-lg font-medium text-gray-900">Featured Startups</h2>
         </CardHeader>
